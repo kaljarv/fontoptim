@@ -1,4 +1,8 @@
-# nbdev template
+# Using Biologically-Informed Artificial Neural Networks to Automatically Optimise Font Parameters for Legibility
+
+https://kaljarv.github.io/aifont/
+
+## From the Template
 
 Use this template to more easily create your [nbdev](https://nbdev.fast.ai/) project.
 
