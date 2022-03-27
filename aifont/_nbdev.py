@@ -2,9 +2,12 @@
 
 __all__ = ["index", "modules", "custom_doc_links", "git_url"]
 
-index = {"say_hello": "00_core.ipynb"}
+index = {"say_hello": "00_core.ipynb",
+         "HelloSayer": "00_core.ipynb",
+         "create_font_annotations": "01_fontsampler.ipynb"}
 
-modules = ["core.py"]
+modules = ["core.py",
+           "fontsampler.py"]
 
 doc_url = "https://kaljarv.github.io/aifont/"
 

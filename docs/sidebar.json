@@ -1,6 +1,7 @@
 {
   "aifont": {
     "Overview": "/",
-    "aifont": "core.html"
+    "aifont": "core.html",
+    "aifont.fontsampler": "fontsampler.html"
   }
 }
