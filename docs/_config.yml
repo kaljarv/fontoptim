@@ -1,7 +1,7 @@
-repository: {user}/{lib_name}
+repository: kaljarv/aifont
 output: web
-topnav_title: {lib_name}
-site_title: {lib_name}
+topnav_title: aifont
+site_title: aifont
 company_name: © Kalle Järvenpää 2022 and authors of dependencies
 description: Using Biologically-Informed Artificial Neural Networks to Automatically Optimise Font Parameters for Legibility
 # Set to false to disable KaTeX math
