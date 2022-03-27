@@ -17,7 +17,7 @@ Dependencies:
   * numpy
   * scikit-image
   * -c anaconda cmake
-  * c conda-forge ffmpeg
+  * -c conda-forge ffmpeg
 * [Google Fonts](https://github.com/google/fonts)
   * `ofl` folder from the repo needed for `FontSampler`
   * If the annotation database is updated, a Google Fonts API key is also needed. See: https://erraticgenerator.com/blog/use-google-fonts-for-machine-learning-part1/
