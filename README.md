@@ -62,6 +62,6 @@ Also, add the repo directory to `PATH` to allow python to load the `aifont` lib 
 
 ## Author
 
-Kalle Järvenpää
-[kalle@kaljarv.com](mailto:kalle@kaljarv.com)
+Kalle Järvenpää<br>
+[kalle@kaljarv.com](mailto:kalle@kaljarv.com)<br>
 [kaljarv.com](https://kaljarv.com/)
