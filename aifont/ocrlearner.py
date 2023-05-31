@@ -10,10 +10,8 @@ __all__ = ['ascii_to_str', 'nist_from_name_func', 'pad_to_size', 'undersample_df
            'apply_gaussian_blur', 'rand_translate_and_pad', 'translate_and_pad', 'get_imagenet_norm', 'Pad',
            'RandImgTransform', 'GaussianBlur', 'Noise', 'TranslateAndPad', 'ToRGB', 'DebugTfm',
            'EMPIRICAL_FINETUNING_TFMS', 'EMPIRICAL_FINETUNING_2_TFMS', 'EMPIRICAL_FINETUNING_3_TFMS',
-           'BLENDING_METHODS', 'NOISE_TYPES', 'enable_global_greyscale', 'disable_global_greyscale', 'PIL_BASE_ARGS',
-           'CornetLayer', 'cornet_for_ocr', 'cornet_splitter', 'count_params', 'count_max_pool_output', 'kaggle_cnn_a',
-           'kaggle_cnn_b', 'kaggle_cnn_c', 'simple_xresnet', 'kaggle_cnn_a_with_res', 'list_params', 'load_ocr_model',
-           'get_learner_filename', 'get_tfms', 'get_dls', 'build_ocr_learner', 'get_ocr_learner_2', 'get_ocr_learner_3',
+           'BLENDING_METHODS', 'NOISE_TYPES', 'CornetLayer', 'cornet_for_ocr', 'cornet_splitter', 'list_params',
+           'load_ocr_model', 'get_learner_filename', 'get_tfms', 'get_dls', 'build_ocr_learner',
            'get_model_accuracy_metrics', 'find_tfms_for_accuracy', 'plot_confusion_matrix',
            'get_empirical_confusion_matrix', 'get_confusion_matrix', 'compare_confusion_matrices', 'CM_FOLDER_PATH',
            'CM_VD_HEIJDEN_PATH', 'TOWNSEND_PATH']
@@ -45,13 +43,13 @@ from typing import Callable, List, Sequence, Tuple
 
 # Cell
 
-A_Z_HANDW_PATH     = Path("data/A_Z_handwritten_data.csv")
-DLS_TEST_PATH      = Path("data/az_tmnist_for_dls_test.csv")
-GOOGLE_FONT_PATH   = Path("data/google_fonts/font_images")
+A_Z_HANDW_PATH     = Path("data/A_Z_handwritten_data.csv")    # https://www.kaggle.com/datasets/sachinpatel21/az-handwritten-alphabets-in-csv-format
+DLS_TEST_PATH      = Path("data/az_tmnist_for_dls_test.csv")  # Included in the repo
+GOOGLE_FONT_PATH   = Path("data/google_fonts/font_images")    # See `aifont_fontsampler`
 MODELS_PATH        = Path("models")
-NIST_PATH          = Path("data/nist_images")
-STANFORD_PATH      = Path("data/letter.data.gz")
-TMNIST_PATH        = Path("data/94_character_TMNIST.csv")
+NIST_PATH          = Path("data/nist_images")                 # http://doi.org/10.18434/T4H01C
+STANFORD_PATH      = Path("data/letter.data.gz")              # http://ai.stanford.edu/~btaskar/ocr/
+TMNIST_PATH        = Path("data/94_character_TMNIST.csv")     # https://www.kaggle.com/datasets/nikbearbrown/tmnist-alphabet-94-characters
 
 def ascii_to_str(ascii: str) -> str:
     """Decode an ASCII-encoded character."""
@@ -688,38 +686,6 @@ class DebugTfm(DisplayedTransform):
 
 # Cell
 
-PIL_BASE_ARGS = {}
-
-def enable_global_greyscale():
-    """Force all PILImages to greyscale. This is needed to force Fastai vision tools
-       to greyscale. To undo, call `disable_global_greyscale`."""
-    warn("Enabling global grayscale behaviour for PILImages! To undo, call disable_global_greyscale.")
-    PIL_BASE_ARGS["_open_args"],PIL_BASE_ARGS["_show_args"] = PILBase._open_args,PILBase._show_args
-    PILBase._open_args,PILBase._show_args = PILImageBW._open_args,PILImageBW._show_args
-
-def disable_global_greyscale():
-    """Undo forcing all PILImages to greyscale with `enable_global_greyscale`."""
-    if len(PIL_BASE_ARGS): PILBase._open_args,PILBase._show_args = PIL_BASE_ARGS["_open_args"],PIL_BASE_ARGS["_show_args"]
-
-# This could also be achieved with the following:
-
-# def ImageBlockBW(cls=PILImageBW):
-#     "A `TransformBlock` for images of `cls`"
-#     return TransformBlock(type_tfms=cls.create, batch_tfms=IntToFloatTensor)
-
-# def from_path_func_bw(path, fnames, label_func, valid_pct=0.2, seed=None, item_tfms=None, batch_tfms=None, **kwargs):
-#     "Create from list of `fnames` in `path`s with `label_func`"
-#     dblock = DataBlock(blocks=(ImageBlockBW, CategoryBlock),
-#                         splitter=RandomSplitter(valid_pct, seed=seed),
-#                         get_y=label_func,
-#                         item_tfms=item_tfms,
-#                         batch_tfms=batch_tfms)
-#     return ImageDataLoaders.from_dblock(dblock, fnames, path=path, **kwargs)
-
-# ImageDataLoaders.from_path_func = from_path_func_bw
-
-# Cell
-
 class CornetLayer(Enum):
     V1 = -5
     V2 = -4
@@ -742,166 +708,6 @@ def cornet_splitter(m, split_at: CornetLayer = CornetLayer.decoder):
     "Splitter for CORnet-Z"
     idx = split_at.value
     return L(m[:idx], m[idx]).map(params)
-
-# Cell
-
-def count_params(model: nn.Module) -> int:
-    """Count the number of trainable params in `model`."""
-    return sum(p.numel() for p in model.parameters() if p.requires_grad)
-
-def count_max_pool_output(input_shape, ks=2, padding=0, stride=None):
-    if stride is None: stride = ks
-    return [(x + 2 * padding - (ks - 1) - 1) // stride + 1 for x in input_shape[:2]] + (input_shape[2:] if len(input_shape) > 2 else [])
-
-def kaggle_cnn_a(n_out: int, input_shape=(28,28)):
-    """https://www.kaggle.com/code/yairhadad1/cnn-for-handwritten-alphabets
-       807,162 params"""
-    # cls = Sequential()
-    # cls.add(Conv2D(32, (5, 5), input_shape=(28, 28, 1), activation='relu'))
-    # cls.add(MaxPooling2D(pool_size=(2, 2)))
-    # cls.add(Dropout(0.3))
-    # cls.add(Flatten())
-    # cls.add(Dense(128, activation='relu'))
-    # cls.add(Dense(len(y.unique()), activation='softmax'))
-    ndim = 2
-    filters = [32]
-    ks = [5]
-    n_pools = 1
-    preflat_shape = tuple(input_shape)
-    for _ in range(n_pools): preflat_shape = count_max_pool_output(preflat_shape)
-    n_flat = int(np.prod(preflat_shape) * filters[-1])
-    model = sequential(
-        ConvLayer(1, filters[0], ks=ks[0], ndim=ndim),
-        nn.Sequential(
-            MaxPool(ndim=ndim),
-            nn.Dropout(0.3),
-            Flatten(),
-            nn.Linear(n_flat, 128),
-            nn.ReLU(),
-            nn.Linear(128, n_out)
-        )
-    )
-    init_cnn(model)
-    return model
-
-def kaggle_cnn_b(n_out: int, input_shape=(28,28)):
-    """https://www.kaggle.com/code/codhek/cnn-using-keras-using-csv-accuracy-99-82
-       1,132,250 params"""
-    # model.add(Conv2D(64, (5, 5), input_shape=(28, 28, 1), activation='relu', data_format="channels_last", padding="same"))
-    # model.add(Conv2D(64, (5, 5), input_shape=(28, 28, 1), activation='relu', data_format="channels_last", padding="same"))
-    # model.add(MaxPooling2D(pool_size=(2, 2)))
-    # model.add(Conv2D(128, (3, 3), activation='relu', data_format="channels_last", padding="same"))
-    # model.add(Conv2D(128, (3, 3), activation='relu', data_format="channels_last", padding="same"))
-    # model.add(MaxPooling2D(pool_size=(2, 2)))
-    # model.add(Dropout(0.2))
-    # model.add(Flatten())
-    # model.add(Dense(128, activation='relu'))
-    # model.add(Dense(num_classes, activation='softmax'))
-    # NB. We are adding BatchNorm which comes with ConvLayer, use norm_type=None to disable
-    ndim = 2
-    filters = [64, 128]
-    ks = [5, 3]
-    n_pools = 2
-    preflat_shape = tuple(input_shape)
-    for _ in range(n_pools): preflat_shape = count_max_pool_output(preflat_shape)
-    n_flat = int(np.prod(preflat_shape) * filters[-1])
-    model = sequential(
-        nn.Sequential(
-            nn.Sequential(
-                ConvLayer(1,          filters[0], ks=ks[0], ndim=ndim),
-                ConvLayer(filters[0], filters[0], ks=ks[0], ndim=ndim),
-            ),
-            MaxPool(ndim=ndim),
-            nn.Sequential(
-                ConvLayer(filters[0], filters[1], ks=ks[1], ndim=ndim),
-                ConvLayer(filters[1], filters[1], ks=ks[1], ndim=ndim),
-            )
-        ),
-        nn.Sequential(
-            MaxPool(ndim=ndim),
-            nn.Dropout(0.2),
-            Flatten(),
-            nn.Linear(n_flat, 128),
-            nn.ReLU(),
-            nn.Linear(128, n_out)
-        )
-    )
-    init_cnn(model)
-    return model
-
-def kaggle_cnn_c(n_out: int, input_shape=(28,28)):
-    """https://www.kaggle.com/code/nohrud/99-9-accuracy-on-alphabet-recognition-by-eda
-       594,170 params"""
-    # model.add(Conv2D(32, (5, 5), input_shape=(28, 28, 1), activation='relu'))
-    # model.add(MaxPooling2D(pool_size=(2, 2)))
-    # model.add(Flatten())
-    # model.add(Dense(128, activation='relu'))
-    # model.add(Dense(num_classes, activation='softmax'))
-    ndim = 2
-    filters = [32]
-    ks = [5]
-    n_pools = 1
-    preflat_shape = tuple(input_shape)
-    # There's no padding for the first conv, so dims go down
-    preflat_shape = [x - (ks[0] - 1) for x in preflat_shape]
-    for _ in range(n_pools): preflat_shape = count_max_pool_output(preflat_shape)
-    n_flat = int(np.prod(preflat_shape) * filters[-1])
-    print(n_flat)
-    model = sequential(
-        nn.Sequential(
-            ConvLayer(1, filters[0], ks=ks[0], ndim=ndim, padding=0),
-        ),
-        nn.Sequential(
-            MaxPool(ndim=ndim),
-            Flatten(),
-            nn.Linear(n_flat, 128),
-            nn.ReLU(),
-            nn.Linear(128, n_out)
-        )
-    )
-    init_cnn(model)
-    return model
-
-def simple_xresnet(n_out, **kwargs) -> Tuple[nn.Module, Callable]:
-    """This matches XResNet18 and has 10M+ params, so it's huge..."""
-    cut = -4
-    model = XResNet(ResBlock, expansion=1, layers=[2,2,2,2], p=0.0, c_in=1, n_out=n_out, stem_szs=(32,32,64),
-                    widen=1.0, ks=3, stride=2)
-    # Cut into body and head as otherwise at least splitter will raise
-    model = nn.Sequential(nn.Sequential(*list(model.children())[:cut]),
-                          nn.Sequential(*list(model.children())[cut:]))
-    def _xresnet_split(m): return L(m[0][:3], m[0][3:], m[1:]).map(params)
-    return model, _xresnet_split
-
-def kaggle_cnn_a_with_res(n_out: int, input_shape=(28,28)):
-    """The Kaggle CNN A model with the first conv layer replaced by a res block
-       https://www.kaggle.com/code/yairhadad1/cnn-for-handwritten-alphabets
-       832,922 params"""
-    ndim = 2
-    filters = [32]
-    ks = [5]
-    n_pools = 1
-    preflat_shape = tuple(input_shape)
-    for _ in range(n_pools): preflat_shape = count_max_pool_output(preflat_shape)
-    n_flat = int(np.prod(preflat_shape) * filters[-1])
-    model = sequential(
-        ResBlock(expansion=1,
-                 ni=1,
-                 nf=filters[0],
-                 stride=1,
-                 ks=ks[0],
-                 ndim=ndim),
-        nn.Sequential(
-            MaxPool(ndim=ndim),
-            nn.Dropout(0.3),
-            Flatten(),
-            nn.Linear(n_flat, 128),
-            nn.ReLU(),
-            nn.Linear(128, n_out)
-        )
-    )
-    init_cnn(model)
-    return model
 
 # Cell
 
@@ -1056,158 +862,6 @@ def build_ocr_learner(
     learn = Learner(dls=dls, model=model, loss_func=loss_func, opt_func=opt_func, lr=lr,
                     splitter=splitter, cbs=cbs,  metrics=metrics, path=path, model_dir=model_dir,
                     wd=wd, wd_bn_bias=wd_bn_bias, train_bn=train_bn, moms=moms)
-    return learn
-
-# Cell
-
-def get_ocr_learner_2(
-    arch=kaggle_cnn_a,
-    n_out=None,
-    bs=128,
-    df=get_a_z_handw_images,
-    vocab=VOCAB_UC,
-    version=None,
-    normalize=False,
-    load_saved=True,
-    size=28,
-    loss_func=CrossEntropyLossFlat(),
-    opt_func=Adam,
-    init=nn.init.kaiming_normal_,
-    lr=defaults.lr,
-    splitter=None,
-    use_xtra_tfms=False,
-    cbs=None,
-    metrics=accuracy,
-    path=None,
-    model_dir=MODELS_PATH,
-    wd=None,
-    wd_bn_bias=False,
-    train_bn=True,
-    moms=(0.95,0.85,0.95),
-    **kwargs) -> Learner:
-    """Create a new OCR learner based on architecture `arch` and dataset `df`.
-       If `pretrained`, the model will be initialised if a suitable save is found."""
-    if use_xtra_tfms:
-        max_rotate = 15.0
-        max_warp = .25
-        blur = GaussianBlur(p=.5, random_size=5)
-        noise = Noise(p=.5, f=(0., .6))
-        item_tfms = [blur, noise]
-    else:
-        max_rotate = 5.0
-        max_warp = .1
-        item_tfms = None
-    tfms = aug_transforms(mult=1.0, do_flip=False, flip_vert=False, max_rotate=max_rotate,
-                          min_zoom=0.85, max_zoom=1.15, max_warp=max_warp, p_affine=.5,
-                          p_lighting=0., xtra_tfms=None, size=size, mode='bilinear',
-                          pad_mode='reflection', align_corners=True, batch=False,
-                          min_scale=1.0)
-    del(tfms[1]) # Remove lighting tfm
-    warn("Need to add custom normalisation scheme and check this doesn't expand channels!")
-    # See: Normalize.from_stats(mean,std) https://docs.fast.ai/data.transforms.html#Normalize
-    dls = ImageDataLoadersDF.from_df(df(), vocab=vocab,
-                                     width=size, height=size,
-                                     num_workers=0, # Needed for Mac
-                                     valid_pct=0.2,
-                                     batch_tfms=tfms,
-                                     item_tfms=item_tfms,
-                                     seed=42, bs=bs)
-
-    if n_out is None: n_out = get_c(dls)
-    # This is a crappy, but we can specify the splitter in arch
-    model_and_splitter = arch(n_out, input_shape=(size, size))
-    if type(model_and_splitter) is tuple:
-        model, splitter = model_and_splitter
-    else:
-        model = model_and_splitter
-        splitter = lambda m: L(m[0], m[1:]).map(params)
-    learn = Learner(dls=dls, model=model, loss_func=loss_func, opt_func=opt_func, lr=lr,
-                    splitter=splitter, cbs=cbs,  metrics=metrics, path=path, model_dir=model_dir,
-                    wd=wd, wd_bn_bias=wd_bn_bias, train_bn=train_bn, moms=moms)
-    if load_saved: learn.load(get_learner_filename(arch=arch, df=df, vocab=vocab, version=version))
-    store_attr('arch,normalize,n_out', self=learn, **kwargs)
-    return learn
-
-def get_ocr_learner_3(
-    arch=kaggle_cnn_a,
-    n_out=None,
-    bs=128,
-    df=get_combined_az_and_tmnist_df,
-    start_col=1,
-    vocab=VOCAB_UC,
-    version=None,
-    normalize=False,
-    load_saved=True,
-    size=28,
-    loss_func=CrossEntropyLossFlat(),
-    opt_func=Adam,
-    init=nn.init.kaiming_normal_,
-    lr=defaults.lr,
-    splitter=None,
-    use_xtra_tfms=False,
-    tfms_p=.5,
-    blur_size: Tuple[int, Sequence[int]]=5,
-    blur_sigma: Tuple[int, Sequence[int]]=(.1, 5.),
-    cbs=None,
-    metrics=accuracy,
-    path=None,
-    model_dir=MODELS_PATH,
-    wd=None,
-    wd_bn_bias=False,
-    train_bn=True,
-    moms=(0.95,0.85,0.95),
-    seed=None,
-    **kwargs) -> Learner:
-    """Create a new OCR learner based on architecture `arch` and dataset `df`.
-       If `pretrained`, the model will be initialised if a suitable save is found."""
-    tfms = []
-    item_tfms = []
-    # Check if we need to pad
-    data = df()
-    orig_sz = math.isqrt(data.shape[1] - start_col)
-    if orig_sz < size:
-        pad = (size - orig_sz) // 2
-        assert orig_sz + 2 * pad == size
-        item_tfms += [Pad(pad, fill=255)]
-    if normalize: tfms += [get_imagenet_norm()] # ToRGB(),
-    if use_xtra_tfms:
-        max_rotate = 15.0
-        max_warp = .25
-        blur = GaussianBlur(p=tfms_p, random_size=blur_size, sigma=blur_sigma)
-        noise = Noise(p=tfms_p, f=(0., .6))
-        item_tfms += [blur, noise]
-    else:
-        max_rotate = 5.0
-        max_warp = .1
-    aug_tfms = aug_transforms(mult=1.0, do_flip=False, flip_vert=False, max_rotate=max_rotate,
-                          min_zoom=0.85, max_zoom=1.15, max_warp=max_warp, p_affine=tfms_p,
-                          p_lighting=0., xtra_tfms=None, size=size, mode='bilinear',
-                          pad_mode='reflection', align_corners=True, batch=False,
-                          min_scale=1.0)
-    del(aug_tfms[1]) # Remove lighting tfm
-
-    tfms += aug_tfms
-    dls = ImageDataLoadersDF.from_df(data, vocab=vocab,
-                                     width=orig_sz, height=orig_sz,
-                                     num_workers=0, # Needed for Mac
-                                     valid_pct=0.2,
-                                     batch_tfms=tfms,
-                                     item_tfms=item_tfms,
-                                     color=normalize,
-                                     seed=seed, bs=bs)
-    if n_out is None: n_out = get_c(dls)
-    # This is a crappy, but we can specify the splitter in arch
-    model_and_splitter = arch(n_out, input_shape=(size, size))
-    if type(model_and_splitter) is tuple:
-        model,splitter = model_and_splitter
-    else:
-        model = model_and_splitter
-        splitter = lambda m: L(m[0], m[1:]).map(params)
-    learn = Learner(dls=dls, model=model, loss_func=loss_func, opt_func=opt_func, lr=lr,
-                    splitter=splitter, cbs=cbs,  metrics=metrics, path=path, model_dir=model_dir,
-                    wd=wd, wd_bn_bias=wd_bn_bias, train_bn=train_bn, moms=moms)
-    if load_saved: learn.load(get_learner_filename(arch=arch, df=df, vocab=vocab, version=version))
-    store_attr('arch,normalize,n_out', self=learn, **kwargs)
     return learn
 
 # Cell

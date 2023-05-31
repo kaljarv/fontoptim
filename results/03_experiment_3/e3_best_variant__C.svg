@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="28" height="28">
+  <defs/>
+  <g>
+    <rect x="0.0" y="0.0" width="28.0" height="28.0" stroke-width="0.0" fill="rgb(255, 255, 255)" opacity="1.0"/>
+    <path d="M 16.692869186401367 22.75503158569336 C 12.124855041503906 22.75503158569336 8.485733032226562 19.095226287841797 8.485733032226562 14.501251220703125 C 8.485733032226562 9.907276153564453 12.124855041503906 6.247470855712891 16.692869186401367 6.247470855712891" stroke-width="2.996274471282959" fill="none" stroke="rgb(0, 0, 0)" stroke-opacity="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 16.692869186401367 6.247470855712891 Q 20.164335250854492 6.247470855712891 22.929889678955078 7.528244972229004" stroke-width="2.996274471282959" fill="none" stroke="rgb(0, 0, 0)" stroke-opacity="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 16.692869186401367 22.75503158569336 Q 20.164335250854492 22.75503158569336 22.929889678955078 21.474258422851562" stroke-width="2.996274471282959" fill="none" stroke="rgb(0, 0, 0)" stroke-opacity="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

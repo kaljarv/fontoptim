@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="28" height="28">
+  <defs/>
+  <g>
+    <rect x="0.0" y="0.0" width="28.0" height="28.0" stroke-width="0.0" fill="rgb(255, 255, 255)" opacity="1.0"/>
+    <path d="M 8.515446662902832 6.499330997467041 L 8.515446662902832 24.00130844116211" stroke-width="2.996274471282959" fill="none" stroke="rgb(0, 0, 0)" stroke-opacity="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 8.515446662902832 6.499330997467041 L 15.898396492004395 6.499330997467041 C 18.489574432373047 6.499330997467041 20.55384063720703 8.720414161682129 20.55384063720703 11.508432388305664 C 20.55384063720703 14.2964506149292 17.4116153717041 16.517534255981445 15.898396492004395 16.517534255981445 L 8.515446662902832 16.517534255981445" stroke-width="2.996274471282959" fill="none" stroke="rgb(0, 0, 0)" stroke-opacity="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 14.016600608825684 16.517534255981445 C 14.566572189331055 16.517534255981445 15.458248138427734 16.96080780029297 16.00821876525879 17.507612228393555 L 22.53949737548828 24.00130844116211" stroke-width="2.996274471282959" fill="none" stroke="rgb(0, 0, 0)" stroke-opacity="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="0.0" y="0.0" width="28.0" height="5.001194000244141" stroke-width="0.0" fill="rgb(255, 255, 255)" opacity="1.0"/>
+    <rect x="0.0" y="24.00130844116211" width="28.0" height="3.9986915588378906" stroke-width="0.0" fill="rgb(255, 255, 255)" opacity="1.0"/>
+  </g>
+</svg>

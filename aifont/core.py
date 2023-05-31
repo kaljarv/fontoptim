@@ -11,7 +11,6 @@ __all__ = ['SYS_FONT_PATH', 'VOCAB_UC', 'VOCAB_UC_NUM', 'ImageTypes', 'TensorIma
 from fastai.data.all import *
 from fastai.vision.all import *
 from functools import cmp_to_key
-import IPython.display
 from IPython.display import clear_output
 import itertools
 from math import sqrt, ceil
@@ -79,7 +78,7 @@ def dump(data: Any, filename: Union[Path, str]) -> None:
     filename = str(filename)
     if not filename.endswith(".pkl"): filename = filename + ".pkl"
     ensure_path(filename)
-    with open(filename, 'wb') as f: pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
+    with open(filename, 'wb') as f: pkl.dump(data, f, protocol=pkl.HIGHEST_PROTOCOL)
 
 def ensure_path(path: Union[Path, str]) -> Union[Path, str]:
     """Create all folders on `path` if they don't exist. If `path` doesn't have a suffix,
@@ -93,7 +92,7 @@ def load(filename: Union[str, Path]
 ) -> Any:
     """Pickle load data."""
     filename = Path(filename)
-    with open(filename.with_suffix(".pkl"), 'rb') as f: return pickle.load(f)
+    with open(filename.with_suffix(".pkl"), 'rb') as f: return pkl.load(f)
 
 def try_load(filename: Union[str, Path]
 ) -> Any:
